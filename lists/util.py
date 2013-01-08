@@ -5,6 +5,11 @@ from .models import Folder
 FOLDERS_SESSION_VARIABLE = 'folders'
 
 
+def get_folders_from_session(session):
+    folders = session.get(FOLDERS_SESSION_VARIABLE, {})
+    return Folder.objects.filter(id__in=folders.values())
+
+
 def get_folder_from_session(session, folder_name):
     folders = session.get(FOLDERS_SESSION_VARIABLE)
     if not folders:
@@ -34,7 +39,7 @@ def get_folder_from_request(request, folder_name, create=False):
 
     if is_logged_in:
         try:
-            folder = Folder.objects.get(name=folder_name)
+            folder = Folder.objects.get(user=request.user, name=folder_name)
         except Folder.DoesNotExist:
             folder = Folder(user=request.user, name=folder_name)
     else:
@@ -49,11 +54,23 @@ def get_folder_from_request(request, folder_name, create=False):
     return folder
 
 
+def get_folders_from_request(request):
+    is_logged_in = request.user and not isinstance(request.user, AnonymousUser)
+
+    if is_logged_in:
+        folders = Folder.objects.filter(user=request.user)
+    else:
+        folders = get_folders_from_session(request.session)
+    return folders
+
+
 def add_item_to_folder(request, folder_name, obj):
     """
     Adds ``obj`` to ``folder`` with name ``folder_name`` for current request.
 
     If folder does not exists, it will be created.
+    Returns added item.
     """
     folder = get_folder_from_request(request, folder_name, create=True)
-    folder.item_set.create(content_object=obj)
+    item = folder.item_set.create(content_object=obj)
+    return item

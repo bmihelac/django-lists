@@ -1,0 +1,8 @@
+{% load url from future %}
+{% load i18n %}
+
+<form action="{% url "lists_item_create" %}" method="post">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <p><input type="submit" value="{% trans "Submit" %}"></p>
+</form>

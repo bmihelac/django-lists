@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% load url from future %}
+{% load lists_tags %}
+
+{% block body %}
+<h1>Authors</h1>
+
+{% for object in object_list %}
+<div>
+  <h3>
+  {{ object }}
+  </h3>
+
+  {% lists_add_form object %}
+</div>
+<hr>
+{% empty %}
+  <p>No authors</p>
+{% endfor %}
+{% endblock %}

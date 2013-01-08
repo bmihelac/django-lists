@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
 
@@ -19,10 +20,14 @@ class Folder(models.Model):
         verbose_name_plural = _('Folders')
 
     def __unicode__(self):
-        return self.name
+        return self.name or ugettext('default folder')
 
     def items(self):
         return [obj.content_object for obj in self.item_set.all()]
+
+    @models.permalink
+    def get_absolute_url(self):
+        return ('lists_folder_detail', [str(self.pk)],)
 
 
 class Item(models.Model):

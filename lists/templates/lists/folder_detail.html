@@ -1,0 +1,16 @@
+{% extends "lists/base.html" %}
+{% load url from future %}
+{% load i18n %}
+
+{% block body %}
+  <h1>{% trans "Folders" %}</h1>
+  <h2>
+    <a href="{{ object.get_absolute_url }}">{{ object }}</a>
+  </h2>
+
+  <ul>
+  {% for item in object.item_set.all %}
+  <li>{{ item.content_object }} <a href="{% url "lists_item_delete" item.pk %}">{% trans "Remove" %}</a></li>
+  {% endfor %}
+  </ul>
+{% endblock %}

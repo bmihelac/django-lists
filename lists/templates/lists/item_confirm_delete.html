@@ -1,0 +1,12 @@
+{% extends "lists/base.html" %}
+{% load i18n %}
+
+{% block body %}
+  {% blocktrans with escaped_object=object %}Are you sure you want to remove the "{{ escaped_object }}"?{% endblocktrans %}</p>
+  <form action="." method="POST">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <p><input type="submit" value="{% trans "Remove" %}"></p>
+  </form>
+
+{% endblock %}

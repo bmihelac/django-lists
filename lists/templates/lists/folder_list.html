@@ -1,0 +1,12 @@
+{% extends "lists/base.html" %}
+{% load i18n %}
+
+{% block body %}
+  <h1>{% trans "Folders" %}</h1>
+
+  {% for object in object_list %}
+  <h2>
+    <a href="{{ object.get_absolute_url }}">{{ object }}</a>
+  </h2>
+  {% endfor %}
+{% endblock %}
