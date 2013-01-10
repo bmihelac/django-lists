@@ -10,14 +10,10 @@ from lists.util import (
 register = template.Library()
 
 
-@register.inclusion_tag("lists/_item_add_form.html")
+@register.assignment_tag
 def lists_add_form(obj, folder_name=""):
     """
-    Renders forms to add object ``obj`` to folder ``folder_name``.
-
-    Template:
-
-    * lists/_item_add_form.html
+    Assigns form to add object ``obj`` to folder ``folder_name``.
     """
     ct = ContentType.objects.get_for_model(obj)
     data = {
@@ -26,9 +22,7 @@ def lists_add_form(obj, folder_name=""):
             'object_id': obj.pk,
             }
     form = ItemForm(initial=data)
-    return {
-            'form': form,
-            }
+    return form
 
 
 @register.assignment_tag
@@ -46,3 +40,11 @@ def lists_get_folder(request, folder_name):
     """
     folder = get_folder_from_request(request, folder_name)
     return folder
+
+
+@register.assignment_tag
+def lists_get_item(folder, obj):
+    """
+    Returns folder item for obj.
+    """
+    return folder.get_item(obj)
