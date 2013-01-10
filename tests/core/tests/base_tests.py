@@ -1,5 +1,6 @@
 from django.test import TestCase
 from django.contrib.auth.models import User
+from django.db import IntegrityError
 
 from lists.models import Folder, Item
 
@@ -26,3 +27,8 @@ class ItemTest(TestCase):
 
     def test_create_item(self):
         Item.objects.create(content_object=self.author, folder=self.folder)
+
+    def test_create_item_twice(self):
+        Item.objects.create(content_object=self.author, folder=self.folder)
+        with self.assertRaises(IntegrityError):
+            Item.objects.create(content_object=self.author, folder=self.folder)

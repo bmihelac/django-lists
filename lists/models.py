@@ -55,3 +55,4 @@ class Item(models.Model):
         verbose_name = _('List item')
         verbose_name_plural = _('List items')
         ordering = ['ordering', '-created_on']
+        unique_together = (("content_type", "object_id", "folder"),)
