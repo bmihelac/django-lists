@@ -29,6 +29,17 @@ class Folder(models.Model):
     def get_absolute_url(self):
         return ('lists_folder_detail', [str(self.pk)],)
 
+    def get_item(self, obj):
+        """
+        Returns ``Item`` if ``obj`` is in ``folder`` or ``None``.
+        """
+        ct = ContentType.objects.get_for_model(obj)
+        try:
+            item = self.item_set.get(content_type=ct, object_id=obj.pk)
+        except Item.DoesNotExist:
+            item = None
+        return item
+
 
 class Item(models.Model):
     content_type = models.ForeignKey(ContentType)
