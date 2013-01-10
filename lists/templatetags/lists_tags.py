@@ -2,7 +2,10 @@ from django import template
 from django.contrib.contenttypes.models import ContentType
 
 from lists.forms import ItemForm
-from lists.util import get_folders_from_request
+from lists.util import (
+        get_folder_from_request,
+        get_folders_from_request,
+        )
 
 register = template.Library()
 
@@ -34,3 +37,12 @@ def lists_get_folders(request):
     Returns all folders from request.
     """
     return get_folders_from_request(request)
+
+
+@register.assignment_tag
+def lists_get_folder(request, folder_name):
+    """
+    Returns folder named ``folder_name``.
+    """
+    folder = get_folder_from_request(request, folder_name)
+    return folder
