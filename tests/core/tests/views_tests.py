@@ -13,19 +13,29 @@ class ViewTest(TestCase):
     def setUp(self):
         self.obj = Author.objects.create(name='Foo')
 
-    def add_item(self, obj, folder_name=""):
+    def add_item(self, obj, folder_name="", next=""):
         ct = ContentType.objects.get_for_model(obj)
         data = {
                 "content_type": ct.pk,
                 "object_id": obj.pk,
                 "folder_name": folder_name,
                 }
-        response = self.client.post(reverse('lists_item_create'), data)
+        url = reverse('lists_item_create')
+        if next:
+            url = "%s?next=%s" % (url, next,)
+        response = self.client.post(url, data)
         return response
 
     def test_add_item(self):
         response = self.add_item(self.obj)
         self.assertEqual(response.status_code, 302)
+        folder = Folder.objects.get(name='')
+        self.assertRedirects(response, '/favorites/folders/%s/' % folder.pk)
+
+    def test_add_item_next(self):
+        response = self.add_item(self.obj, next="/")
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, '/')
 
     def test_folders_view(self):
         self.add_item(self.obj, folder_name="")

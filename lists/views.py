@@ -24,6 +24,7 @@ class FolderDetailView(DetailView):
 class ItemCreateView(FormView):
     form_class = ItemForm
     template_name = "lists/item_form.html"
+    redirect_field_name = "next"
 
     def form_valid(self, form):
         ct = get_object_or_404(ContentType,
@@ -38,11 +39,14 @@ class ItemCreateView(FormView):
             return super(ItemCreateView, self).form_valid(form)
 
     def get_success_url(self):
-        return self.object.folder.get_absolute_url()
+        next = self.request.REQUEST.get(self.redirect_field_name)
+        return next or self.object.folder.get_absolute_url()
 
 
 class ItemDeleteView(DeleteView):
     model = Item
+    redirect_field_name = "next"
 
     def get_success_url(self):
-        return self.object.folder.get_absolute_url()
+        next = self.request.REQUEST.get(self.redirect_field_name)
+        return next or self.object.folder.get_absolute_url()
