@@ -11,7 +11,8 @@
   {{ object }}
   </h3>
 
-  {% lists_add_form object %}
+  {% lists_add_form object as form %}
+  {% include "lists/_item_add_form.html" %}
 </div>
 <hr>
 {% empty %}
