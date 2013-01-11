@@ -1,6 +1,7 @@
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponse
 from django.contrib.contenttypes.models import ContentType
+from django.db.utils import IntegrityError
 from django.views.generic import (
         FormView,
         DeleteView,
@@ -10,7 +11,7 @@ from django.views.generic import (
 
 from .forms import ItemForm
 from .models import Item, Folder
-from .util import add_item_to_folder
+from .util import add_item_to_folder, get_folder_from_request
 
 
 class FolderListView(ListView):
@@ -31,8 +32,14 @@ class ItemCreateView(FormView):
                 pk=form.cleaned_data['content_type'])
         obj = get_object_or_404(ct.model_class(),
                 pk=form.cleaned_data['object_id'])
-        self.object = add_item_to_folder(self.request,
-                form.cleaned_data['folder_name'], obj)
+        folder_name = form.cleaned_data['folder_name']
+        try:
+            self.object = add_item_to_folder(self.request,
+                    folder_name, obj)
+        except IntegrityError:
+            # object is already added, do nothing
+            folder = get_folder_from_request(self.request, folder_name)
+            self.object = folder.get_item(obj)
         if self.request.is_ajax():
             return HttpResponse('Ok<br>')
         else:
