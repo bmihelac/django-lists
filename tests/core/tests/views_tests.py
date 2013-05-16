@@ -16,10 +16,10 @@ class ViewTest(TestCase):
     def add_item(self, obj, folder_name="", next=""):
         ct = ContentType.objects.get_for_model(obj)
         data = {
-                "content_type": ct.pk,
-                "object_id": obj.pk,
-                "folder_name": folder_name,
-                }
+            "content_type": ct.pk,
+            "object_id": obj.pk,
+            "folder_name": folder_name,
+        }
         url = reverse('lists_item_create')
         if next:
             url = "%s?next=%s" % (url, next,)
@@ -48,7 +48,7 @@ class ViewTest(TestCase):
 
         folder = Folder.objects.get(name='')
         response = self.client.get(reverse('lists_folder_detail',
-            kwargs={'pk': folder.pk}))
+                                           kwargs={'pk': folder.pk}))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, unicode(self.obj))
 
@@ -65,3 +65,31 @@ class ViewTest(TestCase):
         response = self.client.post(remove_url, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(folder.item_set.count(), 0)
+
+    def test_add_item_ajax(self):
+        ct = ContentType.objects.get_for_model(self.obj)
+        data = {
+            "content_type": ct.pk,
+            "object_id": self.obj.pk,
+            "folder_name": "",
+        }
+        url = reverse('lists_item_create')
+        response = self.client.post(url, data,
+                                    HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.content, '{"count": 1}')
+
+    def test_remove_item_ajax(self):
+        self.add_item(self.obj, folder_name="")
+
+        ct = ContentType.objects.get_for_model(self.obj)
+        data = {
+            "content_type": ct.pk,
+            "object_id": self.obj.pk,
+            "folder_name": "",
+        }
+        url = reverse('lists_item_remove')
+        response = self.client.post(url, data,
+                                    HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content, '{"count": 0}')

@@ -1,3 +1,5 @@
+import json
+
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponse
 from django.contrib.contenttypes.models import ContentType
@@ -11,7 +13,11 @@ from django.views.generic import (
 
 from .forms import ItemForm
 from .models import Item, Folder
-from .util import add_item_to_folder, get_folder_from_request
+from .util import (
+    add_item_to_folder,
+    get_folder_from_request,
+    remove_item_from_folder,
+)
 
 
 class FolderListView(ListView):
@@ -41,9 +47,39 @@ class ItemCreateView(FormView):
             folder = get_folder_from_request(self.request, folder_name)
             self.object = folder.get_item(obj)
         if self.request.is_ajax():
-            return HttpResponse('Ok<br>')
+            res = {
+                'count': self.object.folder.item_set.count(),
+            }
+            return HttpResponse(json.dumps(res), status=201,
+                                content_type='application/json')
         else:
             return super(ItemCreateView, self).form_valid(form)
+
+    def get_success_url(self):
+        next = self.request.REQUEST.get(self.redirect_field_name)
+        return next or self.object.folder.get_absolute_url()
+
+
+class ItemRemoveView(FormView):
+    form_class = ItemForm
+    template_name = "lists/item_form.html"
+    redirect_field_name = "next"
+
+    def form_valid(self, form):
+        ct = get_object_or_404(ContentType,
+                               pk=form.cleaned_data['content_type'])
+        obj = get_object_or_404(ct.model_class(),
+                                pk=form.cleaned_data['object_id'])
+        folder_name = form.cleaned_data['folder_name']
+        folder = remove_item_from_folder(self.request, folder_name, obj)
+        if self.request.is_ajax():
+            res = {
+                'count': folder.item_set.count(),
+            }
+            return HttpResponse(json.dumps(res), status=200,
+                                content_type='application/json')
+        else:
+            return super(ItemRemoveView, self).form_valid(form)
 
     def get_success_url(self):
         next = self.request.REQUEST.get(self.redirect_field_name)
