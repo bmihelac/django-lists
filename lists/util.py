@@ -74,3 +74,12 @@ def add_item_to_folder(request, folder_name, obj):
     folder = get_folder_from_request(request, folder_name, create=True)
     item = folder.item_set.create(content_object=obj)
     return item
+
+
+def remove_item_from_folder(request, folder_name, obj):
+    """
+    Remove ``obj`` from ``folder`` with name ``folder_name``.
+    """
+    folder = get_folder_from_request(request, folder_name, create=True)
+    folder.get_item(obj).delete()
+    return folder

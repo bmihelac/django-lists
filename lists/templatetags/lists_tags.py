@@ -48,3 +48,14 @@ def lists_get_item(folder, obj):
     Returns folder item for obj.
     """
     return folder.get_item(obj)
+
+
+@register.filter
+def content_type_id(obj):
+    ct = ContentType.objects.get_for_model(obj)
+    return ct.pk
+
+
+@register.filter
+def list_has_object(folder, obj):
+    return bool(folder.get_item(obj))
