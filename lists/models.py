@@ -4,13 +4,17 @@ from django.utils.translation import ugettext_lazy as _
 from django.utils.translation import ugettext
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
+from django.conf import settings
 
 from .managers import FolderManager
 
 
+AUTH_USER_MODEL = getattr(settings, 'AUTH_USER_MODEL', 'auth.User')
+
+
 class Folder(models.Model):
-    user = models.ForeignKey(User,
-            verbose_name=_('User'), blank=True, null=True)
+    user = models.ForeignKey(AUTH_USER_MODEL,
+                             verbose_name=_('User'), blank=True, null=True)
     name = models.CharField(max_length=100, blank=True)
 
     objects = FolderManager()
