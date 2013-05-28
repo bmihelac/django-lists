@@ -88,7 +88,7 @@ class ViewTest(TestCase):
             "object_id": self.obj.pk,
             "folder_name": "",
         }
-        url = reverse('lists_item_remove')
+        url = reverse('lists_object_remove')
         response = self.client.post(url, data,
                                     HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual(response.status_code, 200)
