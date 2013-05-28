@@ -1,6 +1,9 @@
 from django.contrib.auth.models import AnonymousUser
 
+from django.db import IntegrityError
+
 from .models import Folder
+
 
 FOLDERS_SESSION_VARIABLE = 'folders'
 
@@ -83,3 +86,14 @@ def remove_item_from_folder(request, folder_name, obj):
     folder = get_folder_from_request(request, folder_name, create=True)
     folder.get_item(obj).delete()
     return folder
+
+
+def merge_folder(src_folder, dst_folder):
+    """
+    Merge ``src_folder`` items into ``dst_folder``.
+    """
+    for obj in src_folder.items():
+        try:
+            dst_folder.item_set.create(content_object=obj)
+        except IntegrityError:
+            pass
